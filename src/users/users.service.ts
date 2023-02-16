@@ -16,4 +16,7 @@ export class UsersService {
     return newUser;
   }
 
+  async getUser(query: object): Promise<User> {
+    return this.userModel.findOne(query);
+  }
 }
