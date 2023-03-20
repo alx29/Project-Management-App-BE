@@ -5,6 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { UserSchema } from './users/users.model';
 import { AuthModule } from './auth/auth.module';
+import { ProjectsController } from './projects/projects.controller';
+import { ProjectsModule } from './projects/projects.module';
 // mongodb+srv://alex:294318@cluster0.owg42th.mongodb.net/test
 @Module({
   imports: [
@@ -13,8 +15,9 @@ import { AuthModule } from './auth/auth.module';
     ),
     UsersModule,
     AuthModule,
+    ProjectsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ProjectsController],
   providers: [AppService],
 })
 export class AppModule { }
