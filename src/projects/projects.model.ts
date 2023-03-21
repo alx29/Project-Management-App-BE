@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { User } from 'src/users/users.model';
 
 @Schema()
-export class Project {
+export class ProjectDTO {
   @Prop({ required: true })
   name: string;
 
@@ -21,8 +21,12 @@ export class Project {
   @Prop({ required: true })
   status: string;
 
+  @Prop({ required: true })
+  projectManager: string;
+  
   @Prop()
   users: User[];
+
 }
 
-export const ProjectSchema = SchemaFactory.createForClass(Project);
+export const ProjectSchema = SchemaFactory.createForClass(ProjectDTO);

@@ -1,4 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { ProjectDTO } from './projects.model';
 import { ProjectsService } from './projects.service';
 
 @Controller('projects')
@@ -7,15 +8,9 @@ export class ProjectsController {
 
   @Post('/create_project')
   async addProject(
-    @Body('name') name: string,
-    @Body('description') description: string,
-    @Body('startDate') startDate: Date,
-    @Body('endDate') endDate: Date,
-    @Body('budget') budget: number,
-    @Body('status') status: string,
+    @Body() body: ProjectDTO 
   ) {
-    const project = await this.projectsService.insertProject(name, description, startDate, endDate,
-      budget, status);
+    const project = await this.projectsService.insertProject(body);
     
     return {
       msg: 'Project creates',
