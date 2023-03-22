@@ -9,6 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from '../users/users.model';
 import { LocalStrategy } from './local.auth';
 import { JwtStrategy } from './jwt.strategy';
+import { RolesGuard } from './roles.guard';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { JwtStrategy } from './jwt.strategy';
     }),
     MongooseModule.forFeature([{ name: 'user', schema: UserSchema }]),
   ],
-  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy, RolesGuard],
   controllers: [AuthController],
 })
 export class AuthModule {}

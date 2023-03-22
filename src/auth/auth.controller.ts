@@ -2,6 +2,8 @@ import { Controller, Request, Post, Get, UseGuards, Param } from '@nestjs/common
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from 'src/users/users.service';
+import { RolesGuard } from './roles.guard';
+import { Roles } from './roles.decorator';
 
 @Controller()
 export class AuthController {
@@ -23,9 +25,11 @@ export class AuthController {
     return user;
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @Roles('project_manager')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get('all_users')
   async getUsers() {
     return this.usersService.getUsers();
   }
 }
+
