@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post, Get, Put } from '@nestjs/common';
 import { ProjectDTO } from './projects.model';
 import { ProjectsService } from './projects.service';
 
@@ -19,5 +19,16 @@ export class ProjectsController {
       projectBudget: project.budget,
       projectStatus: project.status,
     };
+  }
+
+  @Get('/:projectName')
+  async getProject(@Param('projectName') projectName: string) {
+    const project = this.projectsService.getProject({ projectName });
+    return project;
+  }
+
+  @Put(':id')
+  async updateProject(@Param('id') id: string, @Body() updateaProjectDTO: ProjectDTO) {
+    return this.projectsService.updateProject(id, updateaProjectDTO);
   }
 }
