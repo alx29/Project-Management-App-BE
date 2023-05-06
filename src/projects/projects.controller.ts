@@ -4,10 +4,15 @@ import { ProjectsService } from './projects.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
+import { User } from 'src/users/users.model';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly usersService: UsersService
+  ) { }
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -35,8 +40,18 @@ export class ProjectsController {
   @Put(':id')
   async updateProject(
     @Param('id') id: string,
-    @Body() updateaProjectDTO: ProjectDTO,
+    @Body() updateProjectDTO: ProjectDTO,
   ) {
-    return this.projectsService.updateProject(id, updateaProjectDTO);
+    return this.projectsService.updateProject(id, updateProjectDTO);
+  }
+
+  @Roles('project_manager')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Put(':id/update_users')
+  async updateUsersOnProject(
+    @Param('id') id: string,
+    @Body() user: User,
+  ) {
+    return this.projectsService.updateUsersOnProject(id, user);
   }
 }

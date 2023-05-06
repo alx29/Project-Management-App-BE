@@ -1,4 +1,4 @@
-import { Controller, Request, Post, Get, UseGuards, Param } from '@nestjs/common';
+import { Controller, Request, Post, Get, UseGuards, Param, Put, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from 'src/users/users.service';
@@ -15,13 +15,13 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('auth/login')
   async login(@Request() req) {
-    return this.authService.login(req.user);
+    return await this.authService.login(req.user);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Get('auth/:username')
   async getUser(@Param('username') username: string) {
-    const user = this.usersService.getUser({ username });
+    const user = await this.usersService.getUser({ username });
     return user;
   }
 
@@ -29,7 +29,8 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get('all_users')
   async getUsers() {
-    return this.usersService.getUsers();
+    return await this.usersService.getUsers();
   }
+
 }
 

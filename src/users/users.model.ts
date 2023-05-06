@@ -9,16 +9,16 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ required: true })
+  @Prop()
   email: string;
 
-  @Prop({ required: true })
+  @Prop()
   role: string;
 
-  @Prop({ required: true })
+  @Prop()
   firstName: string;
 
-  @Prop({ required: true })
+  @Prop()
   lastName: string;
 }
 

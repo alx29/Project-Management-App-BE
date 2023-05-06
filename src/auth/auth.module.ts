@@ -10,6 +10,9 @@ import { UserSchema } from '../users/users.model';
 import { LocalStrategy } from './local.auth';
 import { JwtStrategy } from './jwt.strategy';
 import { RolesGuard } from './roles.guard';
+import { ProjectsService } from 'src/projects/projects.service';
+import { ProjectsModule } from 'src/projects/projects.module';
+import { ProjectSchema } from 'src/projects/projects.model';
 
 @Module({
   imports: [
@@ -19,9 +22,17 @@ import { RolesGuard } from './roles.guard';
       secret: 'secretKey',
       signOptions: { expiresIn: '1d' },
     }),
-    MongooseModule.forFeature([{ name: 'user', schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: 'user', schema: UserSchema },
+    ]),
   ],
-  providers: [AuthService, UsersService, LocalStrategy, JwtStrategy, RolesGuard],
+  providers: [
+    AuthService,
+    UsersService,
+    LocalStrategy,
+    JwtStrategy,
+    RolesGuard,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}
