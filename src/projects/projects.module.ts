@@ -6,7 +6,6 @@ import { ProjectsService } from './projects.service';
 import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { UserSchema } from 'src/users/users.model';
-import { AuthService } from 'src/auth/auth.service';
 import { UsersService } from 'src/users/users.service';
 
 @Module({
