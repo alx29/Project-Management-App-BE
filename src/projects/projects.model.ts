@@ -6,22 +6,22 @@ export class ProjectDTO {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop()
   description: string;
 
-  @Prop({ required: true })
+  @Prop()
   startDate: Date;
 
-  @Prop({ required: true })
+  @Prop()
   endDate: Date;
 
-  @Prop({ required: true })
+  @Prop()
   budget: number;
 
-  @Prop({ required: true })
+  @Prop()
   status: string;
 
-  @Prop({ required: true })
+  @Prop()
   projectManager: string;
   
   @Prop()

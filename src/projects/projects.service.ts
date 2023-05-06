@@ -18,20 +18,29 @@ export class ProjectsService {
   async updateProject(id: string, updateProjectDTO: ProjectDTO) {
     const project = await this.projectModel.findById(id);
     
-    project.name = updateProjectDTO.name;
-    project.description = updateProjectDTO.description;
-    project.startDate = updateProjectDTO.startDate;
-    project.endDate = updateProjectDTO.endDate;
-    project.budget = updateProjectDTO.budget;
-    project.status = updateProjectDTO.status;
-    project.projectManager = updateProjectDTO.projectManager;
-    project.users = updateProjectDTO.users;
+    if (updateProjectDTO.name)
+      project.name = updateProjectDTO.name;
+    if (updateProjectDTO.description)
+      project.description = updateProjectDTO.description;
+    if (updateProjectDTO.startDate)
+      project.startDate = updateProjectDTO.startDate;
+    if (updateProjectDTO.endDate)
+      project.endDate = updateProjectDTO.endDate;
+    if (updateProjectDTO.budget) {
+      project.budget = updateProjectDTO.budget;
+    }
+    if (updateProjectDTO.status)
+      project.status = updateProjectDTO.status;
+    if (updateProjectDTO.projectManager)
+      project.projectManager = updateProjectDTO.projectManager;
+    if (updateProjectDTO.users)
+      project.users = updateProjectDTO.users;
 
     const updatedProject = new this.projectModel(project);
 
     await updatedProject.save();
 
-    return updatedProject;
+    return project;
   }
 
   async getProject(query: object): Promise<ProjectDTO> {
