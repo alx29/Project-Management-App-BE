@@ -6,9 +6,14 @@ import { User } from './users.model';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('user') private readonly userModel: Model<User>) {}
-  async insertUser(userName: string, password: string, email: string,
-    role: string, firstName: string, lastName: string) {
-    
+  async insertUser(
+    userName: string,
+    password: string,
+    email: string,
+    role: string,
+    firstName: string,
+    lastName: string,
+  ) {
     const username = userName.toLowerCase();
     const newUser = new this.userModel({
       username,
@@ -18,7 +23,7 @@ export class UsersService {
       firstName,
       lastName,
     });
-    
+
     await newUser.save();
 
     return newUser;
@@ -30,5 +35,9 @@ export class UsersService {
 
   async getUsers(): Promise<User[]> {
     return this.userModel.find().exec();
+  }
+
+  async getUserById(id: string) {
+    return this.userModel.findById(id);
   }
 }
