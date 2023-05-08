@@ -64,4 +64,10 @@ export class ProjectsService {
     await updatedProject.save();
     return project;
   }
+
+  async getUsersOnAProject(id: string) {
+    const project = await this.getProjectById(id);
+
+    return project.users;
+  }
 }

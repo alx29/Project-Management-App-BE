@@ -7,6 +7,7 @@ import { UserSchema } from './users/users.model';
 import { AuthModule } from './auth/auth.module';
 import { ProjectsController } from './projects/projects.controller';
 import { ProjectsModule } from './projects/projects.module';
+import { TasksModuleTsModule } from './tasks.module.ts/tasks.module.ts.module';
 // mongodb+srv://alex:294318@cluster0.owg42th.mongodb.net/test
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ProjectsModule } from './projects/projects.module';
     UsersModule,
     AuthModule,
     ProjectsModule,
+    TasksModuleTsModule,
   ],
   controllers: [AppController, ProjectsController],
   providers: [AppService],

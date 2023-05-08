@@ -11,8 +11,8 @@ import { UsersService } from 'src/users/users.service';
 export class ProjectsController {
   constructor(
     private readonly projectsService: ProjectsService,
-    private readonly usersService: UsersService
-  ) { }
+    private readonly usersService: UsersService,
+  ) {}
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -48,10 +48,13 @@ export class ProjectsController {
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Put(':id/update_users')
-  async updateUsersOnProject(
-    @Param('id') id: string,
-    @Body() user: User,
-  ) {
-    return this.projectsService.updateUsersOnProject(id, user);
+  async updateUsersOnProject(@Param('id') id: string, @Body() user: User) {
+    return await this.projectsService.updateUsersOnProject(id, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id/all_users')
+  async getUsersFromAProject(@Param('id') id: string) {
+    return await this.projectsService.getUsersOnAProject(id);
   }
 }
