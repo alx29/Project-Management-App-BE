@@ -22,9 +22,7 @@ import { ProjectSchema } from 'src/projects/projects.model';
       secret: 'secretKey',
       signOptions: { expiresIn: '1d' },
     }),
-    MongooseModule.forFeature([
-      { name: 'user', schema: UserSchema },
-    ]),
+    MongooseModule.forFeature([{ name: 'user', schema: UserSchema }]),
   ],
   providers: [
     AuthService,

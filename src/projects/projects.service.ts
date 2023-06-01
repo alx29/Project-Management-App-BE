@@ -57,7 +57,6 @@ export class ProjectsService {
     const username = user.username;
     const userToAdd = await this.usersService.getUser({ username });
 
-
     project.users.push(userToAdd);
     const updatedProject = new this.projectModel(project);
 

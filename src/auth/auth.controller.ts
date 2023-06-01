@@ -1,4 +1,13 @@
-import { Controller, Request, Post, Get, UseGuards, Param, Put, Body } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  Post,
+  Get,
+  UseGuards,
+  Param,
+  Put,
+  Body,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from 'src/users/users.service';
@@ -31,6 +40,4 @@ export class AuthController {
   async getUsers() {
     return await this.usersService.getUsers();
   }
-
 }
-

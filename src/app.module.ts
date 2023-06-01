@@ -22,5 +22,4 @@ import { TasksModule } from './tasks/tasks.module';
   controllers: [AppController, ProjectsController],
   providers: [AppService],
 })
-export class AppModule { }
-
+export class AppModule {}
