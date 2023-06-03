@@ -15,12 +15,15 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { User } from 'src/users/users.model';
 import { UsersService } from 'src/users/users.service';
+import { TasksService } from 'src/tasks/tasks.service';
+import { TaskDTO } from 'src/tasks/tasks.model';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(
     private readonly projectsService: ProjectsService,
     private readonly usersService: UsersService,
+    private readonly tasksService: TasksService,
   ) {}
 
   @Roles('project_manager')
@@ -80,8 +83,18 @@ export class ProjectsController {
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Post(':id/clear_users')
+  @Put(':id/clear_users')
   async clearUsersOnProject(@Param('id') id: string) {
     return await this.projectsService.clearUsersOnProject(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/create_task')
+  async addTask(@Body() taskBody: TaskDTO) {
+    const task = await this.tasksService.insertTask(taskBody);
+
+    await this.projectsService.addTaskOnProject(taskBody.projectName, task);
+
+    return task;
   }
 }

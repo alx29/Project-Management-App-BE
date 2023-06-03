@@ -6,22 +6,5 @@ import { TasksService } from './tasks.service';
 
 @Controller('tasks')
 export class TasksController {
-  constructor(
-    private readonly tasksService: TasksService,
-    private readonly projectsService: ProjectsService,
-  ) {}
-
-  @UseGuards(AuthGuard('jwt'))
-  @Post('create_task')
-  async addTask(@Body() body: TaskDTO) {
-    const task = await this.tasksService.insertTask(body);
-
-    return {
-      msg: 'Task created',
-      projectManagerName: task.projectManager,
-      taskName: task.name,
-      taskDescription: task.description,
-      taskStatus: task.status,
-    };
-  }
+  constructor(private readonly tasksService: TasksService) {}
 }

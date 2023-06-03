@@ -5,12 +5,14 @@ import { ProjectDTO } from './projects.model';
 import { User } from 'src/users/users.model';
 import { UsersService } from 'src/users/users.service';
 import { TaskDTO } from 'src/tasks/tasks.model';
+import { TasksService } from 'src/tasks/tasks.service';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectModel('projects') private readonly projectModel: Model<ProjectDTO>,
     private readonly usersService: UsersService,
+    private readonly tasksService: TasksService,
   ) {}
 
   async insertProject(projectBody: ProjectDTO) {
@@ -115,12 +117,20 @@ export class ProjectsService {
       }
     }
 
+    const updatedProject = new this.projectModel(project);
+    await updatedProject.save();
+
     return project;
   }
 
   async addTaskOnProject(projectName: string, task: TaskDTO) {
     const project = await this.getProject({ name: projectName });
-    console.log(project);
+
     project.tasks.push(task);
+
+    const updatedProject = new this.projectModel(project);
+    await updatedProject.save();
+
+    return task;
   }
 }
