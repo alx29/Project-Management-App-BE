@@ -17,6 +17,8 @@ import { User } from 'src/users/users.model';
 import { UsersService } from 'src/users/users.service';
 import { TasksService } from 'src/tasks/tasks.service';
 import { TaskDTO } from 'src/tasks/tasks.model';
+import { NoteDTO } from 'src/notes/notes.model';
+import { NotesService } from 'src/notes/notes.service';
 
 @Controller('projects')
 export class ProjectsController {
@@ -24,6 +26,7 @@ export class ProjectsController {
     private readonly projectsService: ProjectsService,
     private readonly usersService: UsersService,
     private readonly tasksService: TasksService,
+    private readonly notesService: NotesService,
   ) {}
 
   @Roles('project_manager')
@@ -132,5 +135,20 @@ export class ProjectsController {
     );
 
     return project;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('create_note/:projectName/:taskId')
+  async createTask(
+    @Param('projectName') projectName: string,
+    @Param('taskId') taskId: string,
+    @Body() noteBody: NoteDTO,
+  ) {
+    const note = await this.projectsService.createNote(
+      projectName,
+      taskId,
+      noteBody,
+    );
+    return note;
   }
 }

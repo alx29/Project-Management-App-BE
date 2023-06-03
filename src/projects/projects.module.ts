@@ -9,6 +9,8 @@ import { UserSchema } from 'src/users/users.model';
 import { UsersService } from 'src/users/users.service';
 import { TaskSchema } from 'src/tasks/tasks.model';
 import { TasksService } from 'src/tasks/tasks.service';
+import { NotesService } from 'src/notes/notes.service';
+import { NoteSchema } from 'src/notes/notes.model';
 
 @Module({
   imports: [
@@ -16,6 +18,7 @@ import { TasksService } from 'src/tasks/tasks.service';
       { name: 'projects', schema: ProjectSchema },
       { name: 'user', schema: UserSchema },
       { name: 'tasks', schema: TaskSchema },
+      { name: 'notes', schema: NoteSchema },
     ]),
   ],
   providers: [
@@ -24,6 +27,7 @@ import { TasksService } from 'src/tasks/tasks.service';
     RolesGuard,
     UsersService,
     TasksService,
+    NotesService,
   ],
   controllers: [ProjectsController],
   exports: [ProjectsService],

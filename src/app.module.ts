@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProjectsController } from './projects/projects.controller';
 import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
+import { NotesModule } from './notes/notes.module';
 // mongodb+srv://alex:294318@cluster0.owg42th.mongodb.net/test
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TasksModule } from './tasks/tasks.module';
     AuthModule,
     ProjectsModule,
     TasksModule,
+    NotesModule,
   ],
   controllers: [AppController, ProjectsController],
   providers: [AppService],

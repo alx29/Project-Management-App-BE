@@ -6,6 +6,8 @@ import { User } from 'src/users/users.model';
 import { UsersService } from 'src/users/users.service';
 import { TaskDTO } from 'src/tasks/tasks.model';
 import { TasksService } from 'src/tasks/tasks.service';
+import { NotesService } from 'src/notes/notes.service';
+import { NoteDTO } from 'src/notes/notes.model';
 
 @Injectable()
 export class ProjectsService {
@@ -13,6 +15,7 @@ export class ProjectsService {
     @InjectModel('projects') private readonly projectModel: Model<ProjectDTO>,
     private readonly usersService: UsersService,
     private readonly tasksService: TasksService,
+    private readonly notesService: NotesService,
   ) {}
 
   async insertProject(projectBody: ProjectDTO) {
@@ -161,7 +164,6 @@ export class ProjectsService {
   ) {
     const project = await this.getProject({ name: projectName });
     const task = await this.tasksService.findTaskById(taskId);
-    console.log(task);
 
     let taskToUpdate = null;
     for (const t of project.tasks) {
@@ -197,9 +199,34 @@ export class ProjectsService {
     if (taskUpdateDTO.assignedTo) {
       taskToUpdate.assignedTo = taskUpdateDTO.assignedTo;
     }
+    if (taskUpdateDTO.notes) {
+      taskToUpdate.notes = taskUpdateDTO.notes;
+    }
 
     const updatedProject = new this.projectModel(project);
     await updatedProject.save();
     return project;
+  }
+
+  async createNote(projectName: string, taskId: string, note: NoteDTO) {
+    const newNote = this.notesService.addNote(note);
+
+    const project = await this.getProject({ name: projectName });
+    const task = await this.tasksService.findTaskById(taskId);
+    let taskToUpdate = null;
+    for (const t of project.tasks) {
+      if (t.name === task.name) {
+        taskToUpdate = t;
+        break;
+      }
+    }
+    taskToUpdate.notes.push(note);
+
+    const updatedProject = new this.projectModel(project);
+    await updatedProject.save();
+
+    await this.tasksService.addNoteToTask(taskId, note);
+
+    return newNote;
   }
 }

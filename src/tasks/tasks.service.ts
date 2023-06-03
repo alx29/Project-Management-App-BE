@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TaskDTO } from './tasks.model';
+import { NoteDTO } from 'src/notes/notes.model';
 
 @Injectable()
 export class TasksService {
@@ -66,6 +67,20 @@ export class TasksService {
     if (updateTaskDTO.assignedTo) {
       task.assignedTo = updateTaskDTO.assignedTo;
     }
+    if (updateTaskDTO.notes) {
+      task.notes = updateTaskDTO.notes;
+    }
+
+    const updatedTask = new this.taskModel(task);
+    await updatedTask.save();
+
+    return updatedTask;
+  }
+
+  async addNoteToTask(id: string, note: NoteDTO) {
+    const task = await this.findTaskById(id);
+
+    task.notes.push(note);
 
     const updatedTask = new this.taskModel(task);
     await updatedTask.save();
