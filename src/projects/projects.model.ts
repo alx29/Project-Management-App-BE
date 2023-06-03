@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { TaskDTO } from 'src/tasks/tasks.model';
 import { User } from 'src/users/users.model';
 
 @Schema()
@@ -26,6 +27,9 @@ export class ProjectDTO {
 
   @Prop()
   users: User[];
+
+  @Prop()
+  tasks: TaskDTO[];
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(ProjectDTO);

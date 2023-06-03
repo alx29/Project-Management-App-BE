@@ -30,7 +30,7 @@ export class ProjectsController {
     const project = await this.projectsService.insertProject(body);
 
     return {
-      msg: 'Project creates',
+      msg: 'Project created',
       projectName: project.name,
       projectDescription: project.description,
       projectBudget: project.budget,

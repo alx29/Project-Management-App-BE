@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { ProjectDTO } from './projects.model';
 import { User } from 'src/users/users.model';
 import { UsersService } from 'src/users/users.service';
+import { TaskDTO } from 'src/tasks/tasks.model';
 
 @Injectable()
 export class ProjectsService {
@@ -115,5 +116,11 @@ export class ProjectsService {
     }
 
     return project;
+  }
+
+  async addTaskOnProject(projectName: string, task: TaskDTO) {
+    const project = await this.getProject({ name: projectName });
+    console.log(project);
+    project.tasks.push(task);
   }
 }
