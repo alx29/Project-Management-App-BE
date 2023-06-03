@@ -171,10 +171,7 @@ export class ProjectsService {
       }
     }
 
-    const updatedTask = await this.tasksService.updateTask(
-      taskId,
-      taskUpdateDTO,
-    );
+    await this.tasksService.updateTask(taskId, taskUpdateDTO);
 
     if (taskUpdateDTO.name) {
       taskToUpdate.name = taskUpdateDTO.name;
