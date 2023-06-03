@@ -5,8 +5,7 @@ import {
   Get,
   UseGuards,
   Param,
-  Put,
-  Body,
+  Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -39,5 +38,11 @@ export class AuthController {
   @Get('all_users')
   async getUsers() {
     return await this.usersService.getUsers();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':id')
+  async deleteUser(id: string) {
+    return await this.usersService.deleteUser(id);
   }
 }

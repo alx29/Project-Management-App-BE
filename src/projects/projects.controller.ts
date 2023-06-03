@@ -6,6 +6,7 @@ import {
   Get,
   Put,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { ProjectDTO } from './projects.model';
 import { ProjectsService } from './projects.service';
@@ -37,9 +38,13 @@ export class ProjectsController {
     };
   }
 
-  @Get('/:projectName')
+  @UseGuards(AuthGuard('jwt'))
+  @Get('get_project/:projectName')
   async getProject(@Param('projectName') projectName: string) {
-    const project = this.projectsService.getProject({ projectName });
+    const project = await this.projectsService.getProject({
+      name: projectName,
+    });
+
     return project;
   }
 
@@ -64,5 +69,19 @@ export class ProjectsController {
   @Get(':id/all_users')
   async getUsersFromAProject(@Param('id') id: string) {
     return await this.projectsService.getUsersOnAProject(id);
+  }
+
+  @Roles('project_manager')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Delete('delete/:id')
+  async deleteProject(@Param('id') id: string) {
+    return await this.projectsService.deleteProject(id);
+  }
+
+  @Roles('project_manager')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Post(':id/clear_users')
+  async clearUsersOnProject(@Param('id') id: string) {
+    return await this.projectsService.clearUsersOnProject(id);
   }
 }

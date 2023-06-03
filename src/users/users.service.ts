@@ -38,6 +38,10 @@ export class UsersService {
   }
 
   async getUserById(id: string) {
-    return this.userModel.findById(id);
+    return await this.userModel.findById(id);
+  }
+
+  async deleteUser(id: string) {
+    return await this.userModel.findByIdAndDelete(id);
   }
 }

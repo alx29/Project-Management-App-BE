@@ -6,6 +6,9 @@ export class TaskDTO {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ required: true })
+  projectName: string;
+
   @Prop()
   description: string;
 
@@ -25,4 +28,4 @@ export class TaskDTO {
   assignedTo: User;
 }
 
-export const ProjectSchema = SchemaFactory.createForClass(TaskDTO);
+export const TaskSchema = SchemaFactory.createForClass(TaskDTO);

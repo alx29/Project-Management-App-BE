@@ -13,6 +13,16 @@ export class ProjectsService {
   ) {}
 
   async insertProject(projectBody: ProjectDTO) {
+    const projectManager = await this.usersService.getUser({
+      username: projectBody.projectManager,
+    });
+
+    if (projectBody.users) {
+      projectBody.users = [...projectBody.users, projectManager];
+    } else {
+      projectBody.users = [projectManager];
+    }
+
     const newProject = new this.projectModel(projectBody);
 
     await newProject.save();
@@ -23,19 +33,32 @@ export class ProjectsService {
   async updateProject(id: string, updateProjectDTO: ProjectDTO) {
     const project = await this.projectModel.findById(id);
 
-    if (updateProjectDTO.name) project.name = updateProjectDTO.name;
-    if (updateProjectDTO.description)
+    if (updateProjectDTO.name) {
+      project.name = updateProjectDTO.name;
+    }
+    if (updateProjectDTO.description) {
       project.description = updateProjectDTO.description;
-    if (updateProjectDTO.startDate)
+    }
+    if (updateProjectDTO.startDate) {
       project.startDate = updateProjectDTO.startDate;
-    if (updateProjectDTO.endDate) project.endDate = updateProjectDTO.endDate;
+    }
+    if (updateProjectDTO.endDate) {
+      project.endDate = updateProjectDTO.endDate;
+    }
     if (updateProjectDTO.budget) {
       project.budget = updateProjectDTO.budget;
     }
-    if (updateProjectDTO.status) project.status = updateProjectDTO.status;
-    if (updateProjectDTO.projectManager)
+    if (updateProjectDTO.status) {
+      project.status = updateProjectDTO.status;
+    }
+    if (updateProjectDTO.projectManager) {
       project.projectManager = updateProjectDTO.projectManager;
-    if (updateProjectDTO.users) project.users = updateProjectDTO.users;
+    }
+    if (updateProjectDTO.users) {
+      // check if one of users already exists on the project
+
+      project.users = [...project.users, ...updateProjectDTO.users];
+    }
 
     const updatedProject = new this.projectModel(project);
 
@@ -68,5 +91,29 @@ export class ProjectsService {
     const project = await this.getProjectById(id);
 
     return project.users;
+  }
+
+  async deleteProject(id: string) {
+    const project = await this.projectModel.findByIdAndDelete(id);
+
+    return project;
+  }
+
+  async clearUsersOnProject(id: string) {
+    const project = await this.projectModel.findById(id);
+    let projectManager = null;
+    if (project.users) {
+      for (const user of project.users) {
+        if (user.username === project.projectManager) {
+          projectManager = user;
+        }
+      }
+
+      if (projectManager) {
+        project.users = [projectManager];
+      }
+    }
+
+    return project;
   }
 }
