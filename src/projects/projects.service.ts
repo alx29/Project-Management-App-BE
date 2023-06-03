@@ -133,4 +133,76 @@ export class ProjectsService {
 
     return task;
   }
+
+  async deleteTaskOnProject(projectName: string, taskId: string) {
+    const task = await this.tasksService.deleteTaskById(taskId);
+
+    const project = await this.getProject({ name: projectName });
+
+    const filteredTasks = project.tasks.filter((t) => t.name !== task.name);
+    project.tasks = filteredTasks;
+
+    const updatedProject = new this.projectModel(project);
+    await updatedProject.save();
+
+    return task;
+  }
+
+  async getTasksOnAProject(id: string) {
+    const project = await this.getProjectById(id);
+
+    return project.tasks;
+  }
+
+  async updateTask(
+    projectName: string,
+    taskId: string,
+    taskUpdateDTO: TaskDTO,
+  ) {
+    const project = await this.getProject({ name: projectName });
+    const task = await this.tasksService.findTaskById(taskId);
+    console.log(task);
+
+    let taskToUpdate = null;
+    for (const t of project.tasks) {
+      if (t.name === task.name) {
+        taskToUpdate = t;
+        break;
+      }
+    }
+
+    const updatedTask = await this.tasksService.updateTask(
+      taskId,
+      taskUpdateDTO,
+    );
+
+    if (taskUpdateDTO.name) {
+      taskToUpdate.name = taskUpdateDTO.name;
+    }
+    if (taskUpdateDTO.projectName) {
+      taskToUpdate.projectName = taskUpdateDTO.projectName;
+    }
+    if (taskUpdateDTO.description) {
+      taskToUpdate.description = taskUpdateDTO.description;
+    }
+    if (taskUpdateDTO.startDate) {
+      taskToUpdate.startDate = taskUpdateDTO.startDate;
+    }
+    if (taskUpdateDTO.endDate) {
+      taskToUpdate.endDate = taskUpdateDTO.endDate;
+    }
+    if (taskUpdateDTO.status) {
+      taskToUpdate.status = taskUpdateDTO.status;
+    }
+    if (taskUpdateDTO.projectManager) {
+      taskToUpdate.projectManager = taskUpdateDTO.projectManager;
+    }
+    if (taskUpdateDTO.assignedTo) {
+      taskToUpdate.assignedTo = taskUpdateDTO.assignedTo;
+    }
+
+    const updatedProject = new this.projectModel(project);
+    await updatedProject.save();
+    return project;
+  }
 }

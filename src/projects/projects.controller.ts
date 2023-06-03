@@ -63,15 +63,21 @@ export class ProjectsController {
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Put(':id/update_users')
+  @Put('update_users/:id')
   async updateUsersOnProject(@Param('id') id: string, @Body() user: User) {
     return await this.projectsService.updateUsersOnProject(id, user);
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get(':id/all_users')
+  @Get('all_users/:id')
   async getUsersFromAProject(@Param('id') id: string) {
     return await this.projectsService.getUsersOnAProject(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('all_tasks/:id')
+  async getTasksFromAProject(@Param('id') id: string) {
+    return await this.projectsService.getTasksOnAProject(id);
   }
 
   @Roles('project_manager')
@@ -83,7 +89,7 @@ export class ProjectsController {
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Put(':id/clear_users')
+  @Put('clear_users/:id')
   async clearUsersOnProject(@Param('id') id: string) {
     return await this.projectsService.clearUsersOnProject(id);
   }
@@ -96,5 +102,35 @@ export class ProjectsController {
     await this.projectsService.addTaskOnProject(taskBody.projectName, task);
 
     return task;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('delete_task/:projectName/:taskId')
+  async deleteTask(
+    @Param('projectName') projectName,
+    @Param('taskId') taskId: string,
+  ) {
+    const task = await this.projectsService.deleteTaskOnProject(
+      projectName,
+      taskId,
+    );
+
+    return task;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('update_task/:projectName/:taskId')
+  async updateTask(
+    @Param('projectName') projectName: string,
+    @Param('taskId') taskId: string,
+    @Body() taskBody: TaskDTO,
+  ) {
+    const project = await this.projectsService.updateTask(
+      projectName,
+      taskId,
+      taskBody,
+    );
+
+    return project;
   }
 }

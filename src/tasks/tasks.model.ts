@@ -25,7 +25,7 @@ export class TaskDTO {
   projectManager: string;
 
   @Prop()
-  assignedTo: string;
+  assignedTo: User;
 }
 
 export const TaskSchema = SchemaFactory.createForClass(TaskDTO);

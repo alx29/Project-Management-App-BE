@@ -1,7 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { ProjectsService } from 'src/projects/projects.service';
-import { AuthGuard } from '@nestjs/passport';
-import { TaskDTO } from './tasks.model';
+import { Controller } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 
 @Controller('tasks')
