@@ -209,7 +209,7 @@ export class ProjectsService {
   }
 
   async createNote(projectName: string, taskId: string, note: NoteDTO) {
-    const newNote = this.notesService.addNote(note);
+    const newNote = await this.notesService.addNote(note);
 
     const project = await this.getProject({ name: projectName });
     const task = await this.tasksService.findTaskById(taskId);
@@ -220,12 +220,12 @@ export class ProjectsService {
         break;
       }
     }
-    taskToUpdate.notes.push(note);
+    taskToUpdate.notes.push(newNote);
 
     const updatedProject = new this.projectModel(project);
     await updatedProject.save();
 
-    await this.tasksService.addNoteToTask(taskId, note);
+    await this.tasksService.addNoteToTask(taskId, newNote);
 
     return newNote;
   }
