@@ -8,6 +8,7 @@ import { TaskDTO } from 'src/tasks/tasks.model';
 import { TasksService } from 'src/tasks/tasks.service';
 import { NotesService } from 'src/notes/notes.service';
 import { NoteDTO } from 'src/notes/notes.model';
+import { use } from 'passport';
 
 @Injectable()
 export class ProjectsService {
@@ -19,18 +20,17 @@ export class ProjectsService {
   ) {}
 
   async insertProject(projectBody: ProjectDTO) {
-    const projectManager = await this.usersService.getUser({
-      username: projectBody.projectManager,
-    });
+    const projectManagerId = await this.usersService.getUserId(
+      projectBody.projectManager,
+    );
 
-    if (projectBody.users) {
-      projectBody.users = [...projectBody.users, projectManager];
+    if (projectBody.usersID) {
+      projectBody.usersID = [...projectBody.usersID, projectManagerId];
     } else {
-      projectBody.users = [projectManager];
+      projectBody.usersID = [projectManagerId];
     }
 
     const newProject = new this.projectModel(projectBody);
-
     await newProject.save();
 
     return newProject;
@@ -60,14 +60,8 @@ export class ProjectsService {
     if (updateProjectDTO.projectManager) {
       project.projectManager = updateProjectDTO.projectManager;
     }
-    if (updateProjectDTO.users) {
-      // check if one of users already exists on the project
-
-      project.users = [...project.users, ...updateProjectDTO.users];
-    }
 
     const updatedProject = new this.projectModel(project);
-
     await updatedProject.save();
 
     return project;
@@ -81,22 +75,20 @@ export class ProjectsService {
     return this.projectModel.findById(id);
   }
 
-  async updateUsersOnProject(id: string, user: User) {
-    const project = await this.getProjectById(id);
-    const username = user.username;
-    const userToAdd = await this.usersService.getUser({ username });
-
-    project.users.push(userToAdd);
-    const updatedProject = new this.projectModel(project);
-
-    await updatedProject.save();
-    return project;
+  async getAllProjects() {
+    return await this.projectModel.find().exec();
   }
 
-  async getUsersOnAProject(id: string) {
-    const project = await this.getProjectById(id);
+  async addUserToProject(projectId: string, username: string) {
+    const project = await this.getProjectById(projectId);
+    const userId = await this.usersService.getUserId(username);
 
-    return project.users;
+    project.usersID.push(userId);
+
+    const updatedProject = new this.projectModel(project);
+    await updatedProject.save();
+
+    return updatedProject;
   }
 
   async deleteProject(id: string) {
@@ -105,31 +97,30 @@ export class ProjectsService {
     return project;
   }
 
-  async clearUsersOnProject(id: string) {
-    const project = await this.projectModel.findById(id);
-    let projectManager = null;
-    if (project.users) {
-      for (const user of project.users) {
-        if (user.username === project.projectManager) {
-          projectManager = user;
+  async getAllUsers(projectId: string) {
+    const project = await this.getProjectById(projectId);
+    const users = await this.usersService.getUsers();
+    const allUsers = [];
+    for (const userIdFromProject of project.usersID) {
+      for (const user of users) {
+        if (user._id.toString() === userIdFromProject) {
+          allUsers.push(user);
         }
       }
-
-      if (projectManager) {
-        project.users = [projectManager];
-      }
     }
 
-    const updatedProject = new this.projectModel(project);
-    await updatedProject.save();
-
-    return project;
+    return allUsers;
   }
 
-  async addTaskOnProject(projectName: string, task: TaskDTO) {
-    const project = await this.getProject({ name: projectName });
+  async addTaskToProject(projectId: string, taskDTO: TaskDTO) {
+    const project = await this.getProjectById(projectId);
+    const task = await this.tasksService.insertTask(taskDTO);
 
-    project.tasks.push(task);
+    if (project.tasksID) {
+      project.tasksID.push(task._id.toString());
+    } else {
+      project.tasksID = [task._id.toString()];
+    }
 
     const updatedProject = new this.projectModel(project);
     await updatedProject.save();
@@ -137,96 +128,54 @@ export class ProjectsService {
     return task;
   }
 
-  async deleteTaskOnProject(projectName: string, taskId: string) {
+  async removeTaskFromProject(taskId: string) {
     const task = await this.tasksService.deleteTaskById(taskId);
+    if (task === null) {
+      return `Task ${taskId} doesn't exist`;
+    }
 
-    const project = await this.getProject({ name: projectName });
+    const projects = await this.getAllProjects();
 
-    const filteredTasks = project.tasks.filter((t) => t.name !== task.name);
-    project.tasks = filteredTasks;
+    for (const project of projects) {
+      const index = project.tasksID.indexOf(taskId);
+      if (index !== -1) {
+        project.tasksID.splice(index, 1);
+        const updatedProject = new this.projectModel(project);
+        await updatedProject.save();
 
-    const updatedProject = new this.projectModel(project);
-    await updatedProject.save();
-
-    return task;
-  }
-
-  async getTasksOnAProject(id: string) {
-    const project = await this.getProjectById(id);
-
-    return project.tasks;
-  }
-
-  async updateTask(
-    projectName: string,
-    taskId: string,
-    taskUpdateDTO: TaskDTO,
-  ) {
-    const project = await this.getProject({ name: projectName });
-    const task = await this.tasksService.findTaskById(taskId);
-
-    let taskToUpdate = null;
-    for (const t of project.tasks) {
-      if (t.name === task.name) {
-        taskToUpdate = t;
-        break;
+        return `Task ${taskId} removed! from ${updatedProject.name}`;
       }
     }
 
-    await this.tasksService.updateTask(taskId, taskUpdateDTO);
-
-    if (taskUpdateDTO.name) {
-      taskToUpdate.name = taskUpdateDTO.name;
-    }
-    if (taskUpdateDTO.projectName) {
-      taskToUpdate.projectName = taskUpdateDTO.projectName;
-    }
-    if (taskUpdateDTO.description) {
-      taskToUpdate.description = taskUpdateDTO.description;
-    }
-    if (taskUpdateDTO.startDate) {
-      taskToUpdate.startDate = taskUpdateDTO.startDate;
-    }
-    if (taskUpdateDTO.endDate) {
-      taskToUpdate.endDate = taskUpdateDTO.endDate;
-    }
-    if (taskUpdateDTO.status) {
-      taskToUpdate.status = taskUpdateDTO.status;
-    }
-    if (taskUpdateDTO.projectManager) {
-      taskToUpdate.projectManager = taskUpdateDTO.projectManager;
-    }
-    if (taskUpdateDTO.assignedTo) {
-      taskToUpdate.assignedTo = taskUpdateDTO.assignedTo;
-    }
-    if (taskUpdateDTO.notes) {
-      taskToUpdate.notes = taskUpdateDTO.notes;
-    }
-
-    const updatedProject = new this.projectModel(project);
-    await updatedProject.save();
-    return project;
+    return `Task ${taskId} not found!`;
   }
 
-  async createNote(projectName: string, taskId: string, note: NoteDTO) {
-    const newNote = await this.notesService.addNote(note);
+  async removeUserFromAllProjects(userId: string) {
+    const projects = await this.getAllProjects();
 
-    const project = await this.getProject({ name: projectName });
-    const task = await this.tasksService.findTaskById(taskId);
-    let taskToUpdate = null;
-    for (const t of project.tasks) {
-      if (t.name === task.name) {
-        taskToUpdate = t;
-        break;
+    let projectToUpdate = null;
+    for (const project of projects) {
+      if (project.usersID.includes(userId)) {
+        const index = project.usersID.indexOf(userId);
+        project.usersID.splice(index, 1);
+        projectToUpdate = new this.projectModel(project);
+        await projectToUpdate.save();
       }
     }
-    taskToUpdate.notes.push(newNote);
+  }
 
-    const updatedProject = new this.projectModel(project);
-    await updatedProject.save();
+  async removeUserFromProject(projectId: string, userId: string) {
+    const project = await this.getProjectById(projectId);
 
-    await this.tasksService.addNoteToTask(taskId, newNote);
+    const index = project.usersID.indexOf(userId);
+    if (index !== -1) {
+      project.usersID.splice(index, 1);
 
-    return newNote;
+      const updatedProject = new this.projectModel(project);
+      await updatedProject.save();
+      return `User ${userId} removed successfully from project ${projectId};`;
+    }
+
+    return `User ${userId} not found on project ${projectId}`;
   }
 }

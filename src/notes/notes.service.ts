@@ -16,4 +16,29 @@ export class NotesService {
 
     return newNote;
   }
+
+  async getNote(id: string) {
+    return await this.notesModel.findById(id);
+  }
+
+  async updateNote(id: string, note: NoteDTO) {
+    const oldNote = await this.getNote(id);
+
+    if (note.name) {
+      oldNote.name = note.name;
+    }
+    if (note.content) {
+      oldNote.content = note.content;
+    }
+
+    const updatedNote = new this.notesModel(oldNote);
+
+    await updatedNote.save();
+
+    return updatedNote;
+  }
+
+  async removeNote(noteId: string) {
+    return await this.notesModel.findByIdAndDelete(noteId);
+  }
 }

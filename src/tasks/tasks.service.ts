@@ -3,11 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TaskDTO } from './tasks.model';
 import { NoteDTO } from 'src/notes/notes.model';
+import { NotesService } from 'src/notes/notes.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel('tasks') private readonly taskModel: Model<TaskDTO>,
+    private readonly notesService: NotesService,
   ) {}
 
   async insertTask(taskBody: TaskDTO) {
@@ -26,18 +28,8 @@ export class TasksService {
     return await this.taskModel.findById(id);
   }
 
-  async deleteTask(name: string) {
-    const task = await this.findTaskByName(name);
-
-    const deletedTask = await this.taskModel.findByIdAndDelete(task.id);
-
-    return deletedTask;
-  }
-
   async deleteTaskById(id: string) {
-    const deletedTask = await this.taskModel.findByIdAndDelete(id);
-
-    return deletedTask;
+    return await this.taskModel.findByIdAndDelete(id);
   }
 
   async updateTask(id: string, updateTaskDTO: TaskDTO) {
@@ -67,9 +59,6 @@ export class TasksService {
     if (updateTaskDTO.assignedTo) {
       task.assignedTo = updateTaskDTO.assignedTo;
     }
-    if (updateTaskDTO.notes) {
-      task.notes = updateTaskDTO.notes;
-    }
 
     const updatedTask = new this.taskModel(task);
     await updatedTask.save();
@@ -77,14 +66,42 @@ export class TasksService {
     return updatedTask;
   }
 
-  async addNoteToTask(id: string, note: NoteDTO) {
-    const task = await this.findTaskById(id);
+  async addNoteToTask(taskId: string, noteDTO: NoteDTO) {
+    const note = await this.notesService.addNote(noteDTO);
 
-    task.notes.push(note);
+    const task = await this.findTaskById(taskId);
+    if (task.notesID) {
+      task.notesID.push(note._id.toString());
+    } else {
+      task.notesID = [note._id.toString()];
+    }
 
     const updatedTask = new this.taskModel(task);
     await updatedTask.save();
 
-    return updatedTask;
+    return note;
+  }
+
+  async removeNoteFromTask(taskId: string, noteId: string) {
+    const task = await this.findTaskById(taskId);
+    if (task.notesID) {
+      const index = task.notesID.indexOf(noteId);
+      if (index !== -1) {
+        task.notesID.splice(index, 1);
+      }
+    }
+
+    const updatedTask = new this.taskModel(task);
+    await updatedTask.save();
+
+    return `Note ${noteId} removed!`;
+  }
+
+  async deleteNote(taskId: string, noteId: string) {
+    const note = await this.notesService.removeNote(noteId);
+
+    await this.removeNoteFromTask(taskId, noteId);
+
+    return note;
   }
 }

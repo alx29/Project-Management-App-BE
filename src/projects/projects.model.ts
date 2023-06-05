@@ -26,10 +26,10 @@ export class ProjectDTO {
   projectManager: string;
 
   @Prop()
-  users: User[];
+  usersID: string[];
 
   @Prop()
-  tasks: TaskDTO[];
+  tasksID: string[];
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(ProjectDTO);

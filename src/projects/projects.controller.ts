@@ -13,21 +13,11 @@ import { ProjectsService } from './projects.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
-import { User } from 'src/users/users.model';
-import { UsersService } from 'src/users/users.service';
-import { TasksService } from 'src/tasks/tasks.service';
 import { TaskDTO } from 'src/tasks/tasks.model';
-import { NoteDTO } from 'src/notes/notes.model';
-import { NotesService } from 'src/notes/notes.service';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(
-    private readonly projectsService: ProjectsService,
-    private readonly usersService: UsersService,
-    private readonly tasksService: TasksService,
-    private readonly notesService: NotesService,
-  ) {}
+  constructor(private readonly projectsService: ProjectsService) {}
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -66,89 +56,43 @@ export class ProjectsController {
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Put('update_users/:id')
-  async updateUsersOnProject(@Param('id') id: string, @Body() user: User) {
-    return await this.projectsService.updateUsersOnProject(id, user);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Get('all_users/:id')
-  async getUsersFromAProject(@Param('id') id: string) {
-    return await this.projectsService.getUsersOnAProject(id);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Get('all_tasks/:id')
-  async getTasksFromAProject(@Param('id') id: string) {
-    return await this.projectsService.getTasksOnAProject(id);
+  @Put('add_user/:project_id/:username')
+  async addUserToProject(
+    @Param('project_id') projectId: string,
+    @Param('username') username: string,
+  ) {
+    return await this.projectsService.addUserToProject(projectId, username);
   }
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Delete('delete/:id')
-  async deleteProject(@Param('id') id: string) {
-    return await this.projectsService.deleteProject(id);
+  @Get('all_users/:project_id')
+  async getAllUsers(@Param('project_id') projectId: string) {
+    return await this.projectsService.getAllUsers(projectId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('add_task/:project_id')
+  async addTaskToProject(
+    @Param('project_id') projectId: string,
+    @Body() taskDTO: TaskDTO,
+  ) {
+    return await this.projectsService.addTaskToProject(projectId, taskDTO);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('delete_task/:task_id')
+  async removeTaskFromProject(@Param('task_id') taskId: string) {
+    return await this.projectsService.removeTaskFromProject(taskId);
   }
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Put('clear_users/:id')
-  async clearUsersOnProject(@Param('id') id: string) {
-    return await this.projectsService.clearUsersOnProject(id);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Post('/create_task')
-  async addTask(@Body() taskBody: TaskDTO) {
-    const task = await this.tasksService.insertTask(taskBody);
-
-    await this.projectsService.addTaskOnProject(taskBody.projectName, task);
-
-    return task;
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Put('delete_task/:projectName/:taskId')
-  async deleteTask(
-    @Param('projectName') projectName,
-    @Param('taskId') taskId: string,
+  @Put('remove_user/:project_id/:user_id')
+  async removeUserFromProject(
+    @Param('project_id') projectId: string,
+    @Param('user_id') userId: string,
   ) {
-    const task = await this.projectsService.deleteTaskOnProject(
-      projectName,
-      taskId,
-    );
-
-    return task;
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Put('update_task/:projectName/:taskId')
-  async updateTask(
-    @Param('projectName') projectName: string,
-    @Param('taskId') taskId: string,
-    @Body() taskBody: TaskDTO,
-  ) {
-    const project = await this.projectsService.updateTask(
-      projectName,
-      taskId,
-      taskBody,
-    );
-
-    return project;
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Post('create_note/:projectName/:taskId')
-  async createTask(
-    @Param('projectName') projectName: string,
-    @Param('taskId') taskId: string,
-    @Body() noteBody: NoteDTO,
-  ) {
-    const note = await this.projectsService.createNote(
-      projectName,
-      taskId,
-      noteBody,
-    );
-    return note;
+    return await this.projectsService.removeUserFromProject(projectId, userId);
   }
 }

@@ -44,4 +44,12 @@ export class UsersService {
   async deleteUser(id: string) {
     return await this.userModel.findByIdAndDelete(id);
   }
+
+  async getUserId(username: string) {
+    const user = await this.userModel.findOne({ username }).exec();
+    if (user) {
+      return user._id.toString();
+    }
+    return null;
+  }
 }

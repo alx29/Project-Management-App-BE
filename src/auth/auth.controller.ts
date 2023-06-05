@@ -12,12 +12,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from 'src/users/users.service';
 import { RolesGuard } from './roles.guard';
 import { Roles } from './roles.decorator';
+import { ProjectsService } from 'src/projects/projects.service';
 
 @Controller()
 export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
+    private projectsService: ProjectsService,
   ) {}
 
   @UseGuards(AuthGuard('local'))
@@ -41,8 +43,12 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Delete(':id')
-  async deleteUser(id: string) {
-    return await this.usersService.deleteUser(id);
+  @Delete('auth/:id')
+  async deleteUser(@Param('id') id: string) {
+    const user = await this.usersService.deleteUser(id);
+
+    await this.projectsService.removeUserFromAllProjects(id);
+
+    return user;
   }
 }
