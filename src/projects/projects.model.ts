@@ -23,6 +23,9 @@ export class ProjectDTO {
   status: string;
 
   @Prop()
+  category: string;
+
+  @Prop()
   projectManager: string;
 
   @Prop()

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Put,
   UseGuards,
@@ -37,5 +38,11 @@ export class TasksController {
   @Put('update_task/:id')
   async updateTask(@Param('id') taskId: string, @Body() taskDTO: TaskDTO) {
     return await this.tasksService.updateTask(taskId, taskDTO);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('all_tasks')
+  async getAllTasks() {
+    return await this.tasksService.getAllTasks();
   }
 }

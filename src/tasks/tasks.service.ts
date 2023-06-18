@@ -32,6 +32,10 @@ export class TasksService {
     return await this.taskModel.findByIdAndDelete(id);
   }
 
+  async getAllTasks() {
+    return await this.taskModel.find().exec();
+  }
+
   async updateTask(id: string, updateTaskDTO: TaskDTO) {
     const task = await this.findTaskById(id);
 
@@ -52,6 +56,12 @@ export class TasksService {
     }
     if (updateTaskDTO.status) {
       task.status = updateTaskDTO.status;
+    }
+    if (updateTaskDTO.completed !== undefined) {
+      task.completed = updateTaskDTO.completed;
+    }
+    if (updateTaskDTO.important !== undefined) {
+      task.important = updateTaskDTO.important;
     }
     if (updateTaskDTO.projectManager) {
       task.projectManager = updateTaskDTO.projectManager;

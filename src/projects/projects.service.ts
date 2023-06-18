@@ -60,6 +60,9 @@ export class ProjectsService {
     if (updateProjectDTO.projectManager) {
       project.projectManager = updateProjectDTO.projectManager;
     }
+    if (updateProjectDTO.category) {
+      project.category = updateProjectDTO.category;
+    }
 
     const updatedProject = new this.projectModel(project);
     await updatedProject.save();
@@ -122,6 +125,38 @@ export class ProjectsService {
       project.tasksID = [task._id.toString()];
     }
 
+    const user = await this.usersService.getUser({ username: task.assignedTo });
+    if (!project.usersID.includes(user._id.toString())) {
+      if (project.usersID) {
+        project.usersID.push(user._id.toString());
+      } else {
+        project.usersID = [user._id.toString()];
+      }
+    }
+
+    const updatedProject = new this.projectModel(project);
+    await updatedProject.save();
+
+    return task;
+  }
+
+  async updateTaskOnProject(
+    projectId: string,
+    taskId: string,
+    updateTaskDTO: TaskDTO,
+  ) {
+    const task = await this.tasksService.updateTask(taskId, updateTaskDTO);
+
+    const project = await this.getProjectById(projectId);
+    const user = await this.usersService.getUser({ username: task.assignedTo });
+    if (!project.usersID.includes(user._id.toString())) {
+      if (project.usersID) {
+        project.usersID.push(user._id.toString());
+      } else {
+        project.usersID = [user._id.toString()];
+      }
+    }
+
     const updatedProject = new this.projectModel(project);
     await updatedProject.save();
 
@@ -130,9 +165,6 @@ export class ProjectsService {
 
   async removeTaskFromProject(taskId: string) {
     const task = await this.tasksService.deleteTaskById(taskId);
-    if (task === null) {
-      return `Task ${taskId} doesn't exist`;
-    }
 
     const projects = await this.getAllProjects();
 
@@ -145,6 +177,10 @@ export class ProjectsService {
 
         return `Task ${taskId} removed! from ${updatedProject.name}`;
       }
+    }
+
+    if (task === null) {
+      return `Task ${taskId} doesn't exist`;
     }
 
     return `Task ${taskId} not found!`;

@@ -35,6 +35,13 @@ export class AuthController {
     return user;
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Get('auth/get_user_by_id/:id')
+  async getUserById(@Param('id') id: string) {
+    const user = await this.usersService.getUserById(id);
+    return user;
+  }
+
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get('all_users')

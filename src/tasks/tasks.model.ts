@@ -20,6 +20,12 @@ export class TaskDTO {
   endDate: Date;
 
   @Prop()
+  completed: boolean;
+
+  @Prop()
+  important: boolean;
+
+  @Prop()
   status: string;
 
   @Prop()

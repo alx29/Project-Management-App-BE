@@ -14,10 +14,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { TaskDTO } from 'src/tasks/tasks.model';
+import { TasksService } from 'src/tasks/tasks.service';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly tasksService: TasksService,
+  ) {}
 
   @Roles('project_manager')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -32,6 +36,28 @@ export class ProjectsController {
       projectBudget: project.budget,
       projectStatus: project.status,
     };
+  }
+
+  @Roles('project_manager')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Get('all_projects')
+  async getAllProjects() {
+    return await this.projectsService.getAllProjects();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('all_projects/:user_id')
+  async getAllProjectsFromUser(@Param('user_id') userId: string) {
+    const projects = await this.projectsService.getAllProjects();
+    const userProjects = [];
+
+    for (const p of projects) {
+      if (p.usersID.includes(userId)) {
+        userProjects.push(p);
+      }
+    }
+
+    return userProjects;
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -72,12 +98,44 @@ export class ProjectsController {
   }
 
   @UseGuards(AuthGuard('jwt'))
+  @Get('all_tasks/:project_id')
+  async getAllTaskFromProject(@Param('project_id') projectId: string) {
+    const project = await this.projectsService.getProjectById(projectId);
+
+    const tasks = await this.tasksService.getAllTasks();
+
+    const allTasks = [];
+
+    for (const t of tasks) {
+      if (project?.tasksID?.includes(t._id)) {
+        allTasks.push(t);
+      }
+    }
+
+    return allTasks;
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Put('add_task/:project_id')
   async addTaskToProject(
     @Param('project_id') projectId: string,
     @Body() taskDTO: TaskDTO,
   ) {
     return await this.projectsService.addTaskToProject(projectId, taskDTO);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('update_task/:project_id/:task_id')
+  async updateTaskToProject(
+    @Param('project_id') projectId: string,
+    @Param('task_id') taskId: string,
+    @Body() taskDTO: TaskDTO,
+  ) {
+    return await this.projectsService.updateTaskOnProject(
+      projectId,
+      taskId,
+      taskDTO,
+    );
   }
 
   @UseGuards(AuthGuard('jwt'))
