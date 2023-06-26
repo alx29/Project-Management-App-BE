@@ -93,7 +93,7 @@ export class TasksService {
   }
 
   async removeNoteFromTask(taskId: string, noteId: string) {
-    const task = await this.findTaskById(taskId);
+    const task = await this.taskModel.findById(taskId);
     if (task.notesID) {
       const index = task.notesID.indexOf(noteId);
       if (index !== -1) {

@@ -45,4 +45,10 @@ export class TasksController {
   async getAllTasks() {
     return await this.tasksService.getAllTasks();
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get(':id')
+  async getTask(@Param('id') taskId: string) {
+    return await this.tasksService.findTaskById(taskId);
+  }
 }

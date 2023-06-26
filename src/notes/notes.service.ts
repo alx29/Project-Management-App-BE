@@ -41,4 +41,8 @@ export class NotesService {
   async removeNote(noteId: string) {
     return await this.notesModel.findByIdAndDelete(noteId);
   }
+
+  async getAllNotes() {
+    return await this.notesModel.find().exec();
+  }
 }

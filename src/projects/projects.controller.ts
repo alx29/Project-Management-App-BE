@@ -77,7 +77,14 @@ export class ProjectsController {
     @Param('id') id: string,
     @Body() updateProjectDTO: ProjectDTO,
   ) {
-    return this.projectsService.updateProject(id, updateProjectDTO);
+    return await this.projectsService.updateProject(id, updateProjectDTO);
+  }
+
+  @Roles('project_manager')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Delete('/delete_project/:id')
+  async deleteProject(@Param('id') projectId: string) {
+    return await this.projectsService.deleteProject(projectId);
   }
 
   @Roles('project_manager')

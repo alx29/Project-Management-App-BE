@@ -39,6 +39,16 @@ export class ProjectsService {
   async updateProject(id: string, updateProjectDTO: ProjectDTO) {
     const project = await this.projectModel.findById(id);
 
+    for (const t of project.tasksID) {
+      const updateTaskDTO: any = {};
+      if (updateProjectDTO.name) {
+        updateTaskDTO.projectName = updateProjectDTO.name;
+      }
+      if (updateProjectDTO.projectManager) {
+        updateTaskDTO.projectManager = updateProjectDTO.projectManager;
+      }
+      await this.tasksService.updateTask(t, updateTaskDTO);
+    }
     if (updateProjectDTO.name) {
       project.name = updateProjectDTO.name;
     }

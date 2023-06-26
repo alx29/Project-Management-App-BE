@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { AuthGuard } from '@nestjs/passport';
 import { NoteDTO } from './notes.model';
@@ -6,6 +6,12 @@ import { NoteDTO } from './notes.model';
 @Controller('notes')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('all_notes')
+  async getAllNotes() {
+    return await this.notesService.getAllNotes();
+  }
 
   @UseGuards(AuthGuard('jwt'))
   @Put('update_note/:note_id')
