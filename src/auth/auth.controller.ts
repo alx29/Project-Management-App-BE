@@ -42,8 +42,7 @@ export class AuthController {
     return user;
   }
 
-  @Roles('project_manager')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Get('all_users')
   async getUsers() {
     return await this.usersService.getUsers();
